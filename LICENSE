@@ -1,0 +1,35 @@
+Libre License 2.0 (USA)
+=======================
+
+Copyright (c) 2026 TalaveraSama y colaboradores.
+
+Se otorga permiso, de forma gratuita, a cualquier persona que obtenga una copia
+de este software y de los archivos de documentación asociados (el "Software"),
+para tratar el Software sin restricciones, incluyendo sin limitación los derechos
+a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o
+vender copias del Software, y a permitir a las personas a quienes se les
+proporcione el Software a hacer lo mismo, sujeto a las siguientes condiciones:
+
+El aviso de copyright anterior y este aviso de permiso deberán incluirse en todas
+las copias o partes sustanciales del Software.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A LAS GARANTÍAS DE COMERCIABILIDAD,
+IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES
+O TITULARES DEL COPYRIGHT SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑOS U OTRA
+RESPONSABILIDAD, YA SEA EN UNA ACCIÓN DE CONTRATO, AGRAVIO O DE OTRA MANERA,
+DERIVADA DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTRO TRATO EN EL
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+NOTA DE PROCEDENCIA (importante)
+-------------------------------------------------------------------------------
+Este repositorio es un "fork" de https://github.com/tealcavalon/xuione_decoded,
+el cual contiene código *decodificado* (descompilado) del producto comercial
+XUI.one, versión 1.5.13. El copyright original de ese código subyacente
+pertenece a sus respectivos dueños.
+
+Esta "Libre License 2.0 (USA)" ampara la distribución y el material adicional
+(documentación, scripts de instalación y organización) añadido en este fork.
+NO transfiere ni extingue ningún derecho que tengan los autores originales del
+código decodificado. Verifica tus derechos antes de redistribuir.

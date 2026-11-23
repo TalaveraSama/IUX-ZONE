@@ -1,0 +1,33 @@
+# Crontab del usuario 'xui' para el panel XUI.one (decoded 1.5.13)
+# Instalar con:  crontab -u xui scripts/crontab.xui
+# (el script instalar.sh genera este contenido automáticamente desde decoded/crons/)
+#
+# Ruta del binario PHP (ajustar si tu php-cli no está en /usr/bin/php):
+PHP_BIN=/usr/bin/php
+CRON_DIR=/home/xui/crons
+
+* * * * * /usr/bin/php /home/xui/crons/activity.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/backups.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/cache.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/cache_engine.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/certbot.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/cleanup.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/epg.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/errors.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/license.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/lines_logs.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/plex.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/providers.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/root_mysql.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/root_signals.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/series.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/servers.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/stats.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/streams.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/streams_logs.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/tmdb.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/tmdb_popular.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/tmp.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/users.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/vod.php >/dev/null 2>&1
+* * * * * /usr/bin/php /home/xui/crons/watch.php >/dev/null 2>&1
