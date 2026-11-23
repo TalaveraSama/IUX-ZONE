@@ -12,3 +12,6 @@ panel/data/
 panel/.runtime/
 panel/*.zip
 panel/*.log
+
+# Paquete offline pesado (solo en Drive)
+offline/*.zip
