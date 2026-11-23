@@ -3,3 +3,4 @@ analisis/db/database_raiz.sql
 analisis/db/database_bin_install.sql
 *.tar.gz
 *.log
+fusion/*.zip
