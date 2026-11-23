@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* IUX-ZONE Panel — tema base estilo XUI.one modernizado */
+@layer base {
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #0f1116;
+    color: #e6e9ef;
+  }
+
+  ::selection {
+    background: rgba(47, 124, 235, 0.35);
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #12141a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2f3a;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a4252;
+  }
+}

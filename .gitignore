@@ -4,3 +4,11 @@ analisis/db/database_bin_install.sql
 *.tar.gz
 *.log
 fusion/*.zip
+
+# Panel IUX-ZONE (artefactos locales)
+panel/node_modules/
+panel/dist/
+panel/data/
+panel/.runtime/
+panel/*.zip
+panel/*.log
