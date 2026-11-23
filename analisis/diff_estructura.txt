@@ -1,0 +1,214 @@
+COMPARACIÓN DE ESTRUCTURA: instalación original vs tealcavalon/xuione_decoded (decoded/)
+============================================================================================
+grupo                original   repo  coinciden   detalle
+--------------------------------------------------------------------------------------------
+admin                     127    127         SÍ
+crons                      25     25         SÍ
+includes/cli               24     24         SÍ
+includes/libs               8     27         NO | solo repo: includes/libs/TMDb/Collection.php, includes/libs/TMDb/Company.php, includes/libs/TMDb/Episode.php, includes/libs/TMDb/Genre.php, includes/libs/TMDb/Movie.php, includes/libs/TMDb/Person.php, includes/libs/TMDb/Review.php, includes/libs/TMDb/Role.php, includes/libs/TMDb/Season.php, includes/libs/TMDb/TVShow.php, includes/libs/TMDb/config/APIConfiguration.php, includes/libs/TMDb/config/config.php, includes/libs/TMDb/roles/MovieRole.php, includes/libs/TMDb/roles/TVShowRole.php, includes/libs/resources/attributeValueDumpers.php, includes/libs/resources/attributeValueParsers.php, includes/libs/resources/tagValueDumpers.php, includes/libs/resources/tagValueParsers.php, includes/libs/resources/tags.php
+includes/api/admin          1      1         SÍ
+includes (raíz)             7     59         NO | solo original: includes/streaming.php | solo repo: includes/api/admin/index.php, includes/api/reseller/index.php, includes/cli/archive.php, includes/cli/balancer.php, includes/cli/binaries.php, includes/cli/cache_handler.php, includes/cli/certbot.php, includes/cli/created.php, includes/cli/delay.php, includes/cli/llod.php, includes/cli/loopback.php, includes/cli/migrate.php, includes/cli/monitor.php, includes/cli/ondemand.php, includes/cli/plex_item.php, includes/cli/proxy.php, includes/cli/queue.php, includes/cli/record.php, includes/cli/scanner.php, includes/cli/signals.php, includes/cli/startup.php, includes/cli/thumbnail.php, includes/cli/tools.php, includes/cli/update.php, includes/cli/watch_item.php, includes/cli/watchdog.php, includes/libs/Dropbox.php, includes/libs/TMDb/Collection.php, includes/libs/TMDb/Company.php, includes/libs/TMDb/Episode.php, includes/libs/TMDb/Genre.php, includes/libs/TMDb/Movie.php, includes/libs/TMDb/Person.php, includes/libs/TMDb/Review.php, includes/libs/TMDb/Role.php, includes/libs/TMDb/Season.php, includes/libs/TMDb/TVShow.php, includes/libs/TMDb/config/APIConfiguration.php, includes/libs/TMDb/config/config.php, includes/libs/TMDb/roles/MovieRole.php, includes/libs/TMDb/roles/TVShowRole.php, includes/libs/XmlStringStreamer.php, includes/libs/iptables.php, includes/libs/m3u.php, includes/libs/m3u_v2.php, includes/libs/mobiledetect.php, includes/libs/resources/attributeValueDumpers.php, includes/libs/resources/attributeValueParsers.php, includes/libs/resources/tagValueDumpers.php, includes/libs/resources/tagValueParsers.php, includes/libs/resources/tags.php, includes/libs/tmdb.php, includes/libs/tmdb_release.php
+reseller                   35     35         SÍ
+player                     14     29         NO | solo repo: player/libs/TMDb/Collection.php, player/libs/TMDb/Company.php, player/libs/TMDb/Episode.php, player/libs/TMDb/Genre.php, player/libs/TMDb/Movie.php, player/libs/TMDb/Person.php, player/libs/TMDb/Review.php, player/libs/TMDb/Role.php, player/libs/TMDb/Season.php, player/libs/TMDb/TVShow.php, player/libs/TMDb/config/APIConfiguration.php, player/libs/TMDb/config/config.php, player/libs/TMDb/roles/MovieRole.php, player/libs/TMDb/roles/TVShowRole.php, player/libs/tmdb.php
+www                        11     16         NO | solo original: www/index.html | solo repo: www/admin/api.php, www/admin/live.php, www/admin/proxy_api.php, www/admin/thumb.php, www/admin/timeshift.php, www/admin/vod.php
+www/admin                   7      6         NO | solo original: www/admin/index.php
+www/stream                 11      0         NO | solo original: www/stream/auth.php, www/stream/index.php, www/stream/init.php, www/stream/key.php, www/stream/live.php, www/stream/rtmp.php, www/stream/segment.php, www/stream/subtitle.php, www/stream/thumb.php, www/stream/timeshift.php, www/stream/vod.php
+ministra                   86      0         NO | solo original: ministra/JsHttpRequest-debug.js, ministra/JsHttpRequest.js, ministra/account.js, ministra/account_menu.js, ministra/alert.js, ministra/anecdote.js, ministra/app_skeleton.js, ministra/apps.js, ministra/audioclub.js, ministra/blocking.js, ministra/cityinfo.js, ministra/context_menu.js, ministra/course.cbr.js, ministra/course.nbu.js, ministra/demo.js, ministra/downloads.js, ministra/downloads_dialog.js, ministra/duration_input.js, ministra/dvb.js, ministra/epg.js, ministra/epg.recorder.js, ministra/epg.reminder.js, ministra/epg.simple.js, ministra/game.mastermind.js, ministra/global.js, ministra/horoscope.js, ministra/image.viewer.js, ministra/index.html, ministra/infoportal.js, ministra/internet.js, ministra/karaoke.js, ministra/keydown.keycodes.js, ministra/keydown.observer.js, ministra/layer.base.js, ministra/layer.bottom_menu.js, ministra/layer.input.js, ministra/layer.list.js, ministra/layer.modal_form.js, ministra/layer.sclub_info.js, ministra/layer.scrollbar.js, ministra/layer.search_box.js, ministra/layer.setting.js, ministra/layer.sidebar.js, ministra/layer.simple.js, ministra/layer.vclub_info.js, ministra/load_bar.js, ministra/logout.js, ministra/magiccast.js, ministra/main_menu.js, ministra/media_browser.js, ministra/password_input.js, ministra/player.js, ministra/portal.php, ministra/pvr.js, ministra/pvr_local.js, ministra/radio.js, ministra/records.js, ministra/remotepvr.js, ministra/reset.js, ministra/sclub.js, ministra/series_switch.js, ministra/service_management.js, ministra/settings.common.js, ministra/settings.js, ministra/settings.localization.js, ministra/settings.network_status.js, ministra/settings.parent.js, ministra/settings.playback.js, ministra/settings.update.js, ministra/speedtest.js, ministra/time_shift.js, ministra/time_shift_local.js, ministra/traceroute.js, ministra/tv.js, ministra/tv_archive.js, ministra/usbdisk.js, ministra/vclub.js, ministra/version.js, ministra/watchdog.js, ministra/weather.current.js, ministra/weather.day.js, ministra/widget.audio.js, ministra/widget.radio.js, ministra/xpcom.common.js, ministra/xpcom.webkit.js, ministra/youtube.js
+--------------------------------------------------------------------------------------------
+
+ARCHIVOS QUE EXISTEN EN EL ORIGINAL Y FALTAN EN EL REPO (código):
+  includes (raíz): includes/streaming.php
+  www: www/index.html
+  www/admin: www/admin/index.php
+  www/stream: www/stream/auth.php
+  www/stream: www/stream/index.php
+  www/stream: www/stream/init.php
+  www/stream: www/stream/key.php
+  www/stream: www/stream/live.php
+  www/stream: www/stream/rtmp.php
+  www/stream: www/stream/segment.php
+  www/stream: www/stream/subtitle.php
+  www/stream: www/stream/thumb.php
+  www/stream: www/stream/timeshift.php
+  www/stream: www/stream/vod.php
+  ministra: ministra/JsHttpRequest-debug.js
+  ministra: ministra/JsHttpRequest.js
+  ministra: ministra/account.js
+  ministra: ministra/account_menu.js
+  ministra: ministra/alert.js
+  ministra: ministra/anecdote.js
+  ministra: ministra/app_skeleton.js
+  ministra: ministra/apps.js
+  ministra: ministra/audioclub.js
+  ministra: ministra/blocking.js
+  ministra: ministra/cityinfo.js
+  ministra: ministra/context_menu.js
+  ministra: ministra/course.cbr.js
+  ministra: ministra/course.nbu.js
+  ministra: ministra/demo.js
+  ministra: ministra/downloads.js
+  ministra: ministra/downloads_dialog.js
+  ministra: ministra/duration_input.js
+  ministra: ministra/dvb.js
+  ministra: ministra/epg.js
+  ministra: ministra/epg.recorder.js
+  ministra: ministra/epg.reminder.js
+  ministra: ministra/epg.simple.js
+  ministra: ministra/game.mastermind.js
+  ministra: ministra/global.js
+  ministra: ministra/horoscope.js
+  ministra: ministra/image.viewer.js
+  ministra: ministra/index.html
+  ministra: ministra/infoportal.js
+  ministra: ministra/internet.js
+  ministra: ministra/karaoke.js
+  ministra: ministra/keydown.keycodes.js
+  ministra: ministra/keydown.observer.js
+  ministra: ministra/layer.base.js
+  ministra: ministra/layer.bottom_menu.js
+  ministra: ministra/layer.input.js
+  ministra: ministra/layer.list.js
+  ministra: ministra/layer.modal_form.js
+  ministra: ministra/layer.sclub_info.js
+  ministra: ministra/layer.scrollbar.js
+  ministra: ministra/layer.search_box.js
+  ministra: ministra/layer.setting.js
+  ministra: ministra/layer.sidebar.js
+  ministra: ministra/layer.simple.js
+  ministra: ministra/layer.vclub_info.js
+  ministra: ministra/load_bar.js
+  ministra: ministra/logout.js
+  ministra: ministra/magiccast.js
+  ministra: ministra/main_menu.js
+  ministra: ministra/media_browser.js
+  ministra: ministra/password_input.js
+  ministra: ministra/player.js
+  ministra: ministra/portal.php
+  ministra: ministra/pvr.js
+  ministra: ministra/pvr_local.js
+  ministra: ministra/radio.js
+  ministra: ministra/records.js
+  ministra: ministra/remotepvr.js
+  ministra: ministra/reset.js
+  ministra: ministra/sclub.js
+  ministra: ministra/series_switch.js
+  ministra: ministra/service_management.js
+  ministra: ministra/settings.common.js
+  ministra: ministra/settings.js
+  ministra: ministra/settings.localization.js
+  ministra: ministra/settings.network_status.js
+  ministra: ministra/settings.parent.js
+  ministra: ministra/settings.playback.js
+  ministra: ministra/settings.update.js
+  ministra: ministra/speedtest.js
+  ministra: ministra/time_shift.js
+  ministra: ministra/time_shift_local.js
+  ministra: ministra/traceroute.js
+  ministra: ministra/tv.js
+  ministra: ministra/tv_archive.js
+  ministra: ministra/usbdisk.js
+  ministra: ministra/vclub.js
+  ministra: ministra/version.js
+  ministra: ministra/watchdog.js
+  ministra: ministra/weather.current.js
+  ministra: ministra/weather.day.js
+  ministra: ministra/widget.audio.js
+  ministra: ministra/widget.radio.js
+  ministra: ministra/xpcom.common.js
+  ministra: ministra/xpcom.webkit.js
+  ministra: ministra/youtube.js
+
+ARCHIVOS QUE EXISTEN EN EL REPO Y NO EN EL ORIGINAL:
+  includes/libs: includes/libs/TMDb/Collection.php
+  includes/libs: includes/libs/TMDb/Company.php
+  includes/libs: includes/libs/TMDb/Episode.php
+  includes/libs: includes/libs/TMDb/Genre.php
+  includes/libs: includes/libs/TMDb/Movie.php
+  includes/libs: includes/libs/TMDb/Person.php
+  includes/libs: includes/libs/TMDb/Review.php
+  includes/libs: includes/libs/TMDb/Role.php
+  includes/libs: includes/libs/TMDb/Season.php
+  includes/libs: includes/libs/TMDb/TVShow.php
+  includes/libs: includes/libs/TMDb/config/APIConfiguration.php
+  includes/libs: includes/libs/TMDb/config/config.php
+  includes/libs: includes/libs/TMDb/roles/MovieRole.php
+  includes/libs: includes/libs/TMDb/roles/TVShowRole.php
+  includes/libs: includes/libs/resources/attributeValueDumpers.php
+  includes/libs: includes/libs/resources/attributeValueParsers.php
+  includes/libs: includes/libs/resources/tagValueDumpers.php
+  includes/libs: includes/libs/resources/tagValueParsers.php
+  includes/libs: includes/libs/resources/tags.php
+  includes (raíz): includes/api/admin/index.php
+  includes (raíz): includes/api/reseller/index.php
+  includes (raíz): includes/cli/archive.php
+  includes (raíz): includes/cli/balancer.php
+  includes (raíz): includes/cli/binaries.php
+  includes (raíz): includes/cli/cache_handler.php
+  includes (raíz): includes/cli/certbot.php
+  includes (raíz): includes/cli/created.php
+  includes (raíz): includes/cli/delay.php
+  includes (raíz): includes/cli/llod.php
+  includes (raíz): includes/cli/loopback.php
+  includes (raíz): includes/cli/migrate.php
+  includes (raíz): includes/cli/monitor.php
+  includes (raíz): includes/cli/ondemand.php
+  includes (raíz): includes/cli/plex_item.php
+  includes (raíz): includes/cli/proxy.php
+  includes (raíz): includes/cli/queue.php
+  includes (raíz): includes/cli/record.php
+  includes (raíz): includes/cli/scanner.php
+  includes (raíz): includes/cli/signals.php
+  includes (raíz): includes/cli/startup.php
+  includes (raíz): includes/cli/thumbnail.php
+  includes (raíz): includes/cli/tools.php
+  includes (raíz): includes/cli/update.php
+  includes (raíz): includes/cli/watch_item.php
+  includes (raíz): includes/cli/watchdog.php
+  includes (raíz): includes/libs/Dropbox.php
+  includes (raíz): includes/libs/TMDb/Collection.php
+  includes (raíz): includes/libs/TMDb/Company.php
+  includes (raíz): includes/libs/TMDb/Episode.php
+  includes (raíz): includes/libs/TMDb/Genre.php
+  includes (raíz): includes/libs/TMDb/Movie.php
+  includes (raíz): includes/libs/TMDb/Person.php
+  includes (raíz): includes/libs/TMDb/Review.php
+  includes (raíz): includes/libs/TMDb/Role.php
+  includes (raíz): includes/libs/TMDb/Season.php
+  includes (raíz): includes/libs/TMDb/TVShow.php
+  includes (raíz): includes/libs/TMDb/config/APIConfiguration.php
+  includes (raíz): includes/libs/TMDb/config/config.php
+  includes (raíz): includes/libs/TMDb/roles/MovieRole.php
+  includes (raíz): includes/libs/TMDb/roles/TVShowRole.php
+  includes (raíz): includes/libs/XmlStringStreamer.php
+  includes (raíz): includes/libs/iptables.php
+  includes (raíz): includes/libs/m3u.php
+  includes (raíz): includes/libs/m3u_v2.php
+  includes (raíz): includes/libs/mobiledetect.php
+  includes (raíz): includes/libs/resources/attributeValueDumpers.php
+  includes (raíz): includes/libs/resources/attributeValueParsers.php
+  includes (raíz): includes/libs/resources/tagValueDumpers.php
+  includes (raíz): includes/libs/resources/tagValueParsers.php
+  includes (raíz): includes/libs/resources/tags.php
+  includes (raíz): includes/libs/tmdb.php
+  includes (raíz): includes/libs/tmdb_release.php
+  player: player/libs/TMDb/Collection.php
+  player: player/libs/TMDb/Company.php
+  player: player/libs/TMDb/Episode.php
+  player: player/libs/TMDb/Genre.php
+  player: player/libs/TMDb/Movie.php
+  player: player/libs/TMDb/Person.php
+  player: player/libs/TMDb/Review.php
+  player: player/libs/TMDb/Role.php
+  player: player/libs/TMDb/Season.php
+  player: player/libs/TMDb/TVShow.php
+  player: player/libs/TMDb/config/APIConfiguration.php
+  player: player/libs/TMDb/config/config.php
+  player: player/libs/TMDb/roles/MovieRole.php
+  player: player/libs/TMDb/roles/TVShowRole.php
+  player: player/libs/tmdb.php
+  www: www/admin/api.php
+  www: www/admin/live.php
+  www: www/admin/proxy_api.php
+  www: www/admin/thumb.php
+  www: www/admin/timeshift.php
+  www: www/admin/vod.php
