@@ -60,6 +60,25 @@ IUX-ZONE/
 └── README.md
 ```
 
+## Instalable (paquete autónomo)
+
+Además del código en el repo, hay un **paquete instalable** listo para llevar a
+cualquier servidor Linux (Debian/Ubuntu):
+
+1. Descarga `xuione-instalable.tar.gz` desde la
+   [release `instalable-1.5.13`](https://github.com/TalaveraSama/IUX-ZONE/releases/tag/instalable-1.5.13).
+2. En la máquina destino:
+
+   ```bash
+   tar xzf xuione-instalable.tar.gz
+   cd xuione-instalable
+   sudo bash instalar.sh      # asistente interactivo: PHP 7.4, Apache, MariaDB, crons
+   ```
+
+El script pregunta dominio, credenciales de BD y (opcionalmente) la ruta/URL del
+esquema SQL. Para regenerar el paquete: `bash scripts/empacar.sh`.
+🔴 Recuerda: **falta el esquema de BD** (ver `docs/esquema-bd.md`).
+
 ## Requisitos mínimos
 
 Resumen (detalle en `docs/requisitos.md`):

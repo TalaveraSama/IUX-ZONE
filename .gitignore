@@ -1,0 +1,8 @@
+# Build artifacts (el instalable se publica como GitHub Release, no en git)
+/xuione-instalable.tar.gz
+/xuione-instalable/
+
+# Runtime (se crean en /home/xui al instalar)
+tmp/
+content/
+config/
