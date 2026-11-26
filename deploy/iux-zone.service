@@ -1,0 +1,28 @@
+[Unit]
+Description=iux-zone IPTV management and MPEG-TS relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=iux-zone
+Group=iux-zone
+WorkingDirectory=/opt/iux-zone/current
+EnvironmentFile=/etc/iux-zone/iux-zone.env
+ExecStart=@NODE@ /opt/iux-zone/current/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/iux-zone
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
