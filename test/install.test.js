@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, realpathSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, mkdirSync, writeFileSync, symlinkSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -76,5 +76,5 @@ test('el servidor inicia de verdad al invocarlo mediante current/server.js', { t
   assert.equal(response.status, 200);
   const system = await response.json();
   assert.equal(system.name, 'iux-zone');
-  assert.equal(system.version, '0.1.1');
+  assert.equal(system.version, JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version);
 });

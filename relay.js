@@ -5,6 +5,10 @@ import { isIP } from 'node:net';
 
 export function validateSource(value) {
   const url = new URL(value);
+  if (url.protocol === 'tvh:') {
+    if (url.hostname !== 'channel' || !/^\/[a-f0-9]{32}$/i.test(url.pathname) || url.username || url.password || url.port || url.search || url.hash) throw new Error('Origen Tvheadend inválido.');
+    return url;
+  }
   if (!['http:', 'https:', 'udp:', 'rtp:'].includes(url.protocol) || url.username || url.password || url.hash) throw new Error('Origen no admitido. Usa HTTP-TS, UDP-TS o RTP/MP2T sin credenciales ni fragmentos.');
   if (['udp:', 'rtp:'].includes(url.protocol)) {
     if (isIP(url.hostname) !== 4 || !url.port || Number(url.port) < 1024 || url.search || !['', '/'].includes(url.pathname)) throw new Error('UDP/RTP requiere IPv4 y puerto de 1024 a 65535, sin ruta ni parámetros.');
@@ -89,6 +93,9 @@ export class RelayManager {
   start(channel, session) {
     const url = validateSource(channel.source);
     this.armTimer(session);
+    if (url.protocol === 'tvh:') {
+      void this.startTvheadend(channel, session); return;
+    }
     if (['http:', 'https:'].includes(url.protocol)) return this.startHTTP(url, session, 0);
     const socket = dgram.createSocket({ type: 'udp4', reuseAddr: false });
     session.socket = socket;
@@ -114,6 +121,31 @@ export class RelayManager {
       }
     });
   }
+  forwardPackets(session, data) {
+    const pending = session.pending || Buffer.alloc(0);
+    const buffer = pending.length ? Buffer.concat([pending, data]) : data;
+    const length = Math.floor(buffer.length / 188) * 188;
+    session.pending = buffer.subarray(length);
+    if (!length) return;
+    const packets = buffer.subarray(0, length);
+    if (!isTS(packets)) { this.finish(session, 'El origen no entrega MPEG-TS de paquetes de 188 bytes.'); return; }
+    this.broadcast(session, packets);
+  }
+  async startTvheadend(channel, session) {
+    session.abortController = new AbortController();
+    try {
+      if (!channel.openStream) throw new Error('Motor Tvheadend no disponible.');
+      const response = await channel.openStream(session.abortController.signal);
+      if (session.stopped) { await response.body?.cancel(); return; }
+      session.reader = response.body.getReader();
+      for (;;) {
+        const { value, done } = await session.reader.read();
+        if (done || session.stopped) break;
+        this.forwardPackets(session, Buffer.from(value));
+      }
+      this.finish(session, 'Tvheadend terminó la transmisión.');
+    } catch { this.finish(session, 'No se pudo leer Tvheadend. Revisa conexión, permisos de streaming y perfil pass.'); }
+  }
   startHTTP(url, session, redirects) {
     const fail = message => this.finish(session, message);
     const request = (url.protocol === 'https:' ? https : http).get(url, {
@@ -135,18 +167,7 @@ export class RelayManager {
       if (input.statusCode !== 200 || (input.headers['content-encoding'] && input.headers['content-encoding'] !== 'identity')) {
         input.destroy(); return fail('El origen rechazó la conexión o entregó contenido comprimido.');
       }
-      let pending = Buffer.alloc(0);
-      input.on('data', data => {
-        if (session.stopped) return;
-        const buffer = pending.length ? Buffer.concat([pending, data]) : data;
-        const length = Math.floor(buffer.length / 188) * 188;
-        pending = buffer.subarray(length);
-        if (!length) return;
-        const packets = buffer.subarray(0, length);
-        // Keep all viewers packet-aligned, even when HTTP chunks split TS packets.
-        if (!isTS(packets)) return fail('La respuesta no parece MPEG-TS de paquetes de 188 bytes.');
-        this.broadcast(session, packets);
-      });
+      input.on('data', data => { if (!session.stopped) this.forwardPackets(session, data); });
       input.on('end', () => fail('La conexión del origen terminó.'));
       input.on('error', () => fail('Se interrumpió la lectura del origen.'));
       input.on('aborted', () => fail('El origen cerró la conexión inesperadamente.'));
@@ -165,6 +186,8 @@ export class RelayManager {
     clearTimeout(session.timer);
     session.state.state = error ? 'error' : 'idle'; session.state.error = error;
     session.state.stoppedAt = new Date().toISOString();
+    session.abortController?.abort();
+    void session.reader?.cancel().catch(() => {});
     session.request?.destroy(); session.input?.destroy();
     try { session.socket?.close(); } catch { /* socket may not have bound yet */ }
     for (const client of session.clients) {

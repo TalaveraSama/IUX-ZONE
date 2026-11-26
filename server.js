@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { TvheadendClient, checkUuid } from './tvheadend.js';
 import { RelayManager, validateSource } from './relay.js';
 import { readFileSync, writeFileSync, mkdirSync, renameSync, existsSync, realpathSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -7,7 +8,7 @@ import { randomUUID, randomBytes, createHash, timingSafeEqual } from 'node:crypt
 
 const root = dirname(fileURLToPath(import.meta.url));
 const version = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
-const protocols = new Set(['http:', 'https:', 'udp:', 'rtp:']);
+const protocols = new Set(['http:', 'https:', 'udp:', 'rtp:', 'tvh:']);
 const clean = (value, max = 150) => typeof value === 'string' ? value.trim().replace(/[\r\n\x00-\x1f\x7f]/g, '').slice(0, max) : '';
 const hash = value => createHash('sha256').update(value).digest();
 
@@ -47,6 +48,7 @@ export function createApp({ dataDir = process.env.DATA_DIR || join(root, 'data')
   }
   const relay = new RelayManager({ multicastInterface: process.env.MULTICAST_INTERFACE || '', ...relayOptions });
   mkdirSync(dataDir, { recursive: true, mode: 0o700 });
+  const tvh = new TvheadendClient(dataDir);
   const file = join(dataDir, 'channels.json');
   let channels = [];
   if (existsSync(file)) {
@@ -134,13 +136,47 @@ export function createApp({ dataDir = process.env.DATA_DIR || join(root, 'data')
         if (!playbackAccess) return reply(401, { error: 'Token de reproducción o sesión requerido.' });
         const channel = channels.find(c => c.id === streamMatch[1]);
         if (!channel || !channel.enabled) return reply(404, { error: 'Canal no disponible.' });
-        relay.attach(channel, res); return;
+        const tvhUuid = channel.source.startsWith('tvh:') ? new URL(channel.source).pathname.slice(1) : null;
+        relay.attach(tvhUuid ? { ...channel, openStream: signal => tvh.stream(tvhUuid, signal) } : channel, res); return;
       }
       if ((path.startsWith('/api/') || (path === '/playlist.m3u' && !tokenAccess)) && !authenticated) return reply(401, { error: 'Inicia sesión para continuar.' });
       if (path === '/api/system' && req.method === 'GET') return reply(200, {
         name: 'iux-zone', version, startedAt, authRequired: Boolean(password),
-        capabilities: { channelManagement: true, m3uExport: true, relay: true, dvb: false, epg: false },
+        capabilities: { channelManagement: true, m3uExport: true, relay: true, dvb: false, epg: false, tvheadend: true, dvbViaTvheadend: true, epgViaTvheadend: true },
       });
+      if (path === '/api/tvh/settings' && req.method === 'GET') return reply(200, tvh.publicSettings());
+      if (path === '/api/tvh/settings' && req.method === 'PUT') {
+        const result = tvh.save(await readBody());
+        for (const channel of channels) if (channel.source.startsWith('tvh:')) relay.stop(channel.id);
+        return reply(200, result);
+      }
+      if (path === '/api/tvh/test' && req.method === 'POST') {
+        const body = await readBody();
+        return reply(200, await tvh.test(Object.keys(body).length ? body : undefined));
+      }
+      const tvhResource = path.match(/^\/api\/tvh\/resources\/([a-z]+)$/);
+      if (tvhResource && req.method === 'GET') return reply(200, await tvh.resource(tvhResource[1], requestUrl.searchParams));
+      if (path === '/api/tvh/action' && req.method === 'POST') return reply(200, await tvh.action(await readBody()));
+      if (path === '/api/tvh/import' && req.method === 'POST') {
+        const body = await readBody();
+        if (!Array.isArray(body.uuids) || !body.uuids.length || body.uuids.length > 100) return reply(400, { error: 'Selecciona entre 1 y 100 canales.' });
+        const ids = new Set(body.uuids.map(checkUuid));
+        const remote = await tvh.call('channel/grid', { start: 0, limit: 10000 });
+        const selected = (remote.entries || []).filter(c => ids.has(c.uuid));
+        if (selected.length !== ids.size) return reply(400, { error: 'Algún canal ya no está disponible. Actualiza la lista.' });
+        const next = [...channels]; let added = 0; let updated = 0;
+        for (const item of selected) {
+          const source = `tvh://channel/${checkUuid(item.uuid)}`;
+          const index = next.findIndex(c => c.source === source);
+          const now = new Date().toISOString();
+          const data = validateChannel({ name: item.name, source, group: 'Tvheadend', tvgId: item.uuid, enabled: index >= 0 ? next[index].enabled : item.enabled !== false });
+          if (index >= 0) { next[index] = { ...next[index], ...data, updatedAt: now }; updated++; }
+          else { next.push({ ...data, id: randomUUID(), createdAt: now, updatedAt: now }); added++; }
+        }
+        if (next.length > 10000) return reply(409, { error: 'Límite de 10 000 canales alcanzado.' });
+        save(next);
+        return reply(200, { added, updated, total: next.length });
+      }
       if (path === '/api/relay' && req.method === 'GET') return reply(200, relay.snapshot());
       if (path === '/api/playback' && req.method === 'GET') {
         const base = publicUrl || `${req.socket.encrypted ? 'https' : 'http'}://${req.headers.host}`;
@@ -181,7 +217,7 @@ export function createApp({ dataDir = process.env.DATA_DIR || join(root, 'data')
           return url.href;
         }));
       }
-      const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'], '/favicon.svg': ['favicon.svg', 'image/svg+xml'] };
+      const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/styles.css': ['styles.css', 'text/css'], '/favicon.svg': ['favicon.svg', 'image/svg+xml'], '/tvheadend-ui.js': ['tvheadend-ui.js', 'text/javascript'], '/tvheadend.css': ['tvheadend.css', 'text/css'], '/ofm-tokens.css': ['ofm-tokens.css', 'text/css'] };
       if (assets[path] && ['GET', 'HEAD'].includes(req.method)) {
         const [name, type] = assets[path];
         res.writeHead(200, { 'Content-Type': `${type}; charset=utf-8` });

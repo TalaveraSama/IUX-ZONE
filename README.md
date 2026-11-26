@@ -1,145 +1,102 @@
-# iux-zone 0.1.1
+# iux-zone · Tvheadend workspace
 
-Consola IPTV independiente con **retransmisión MPEG-TS real**, administración de canales y listas M3U. Interfaz en español, Node.js 22+, sin dependencias npm de ejecución.
+Consola de cabecera IPTV/DVB en español: gestión de canales, integración con Tvheadend y retransmisión HTTP MPEG-TS bajo demanda.
 
-## Descargar e instalar
+**Rama en desarrollo: 0.2.0.** La última release publicada previamente fue [v0.1.1](https://github.com/TalaveraSama/IUX-ZONE/releases/tag/v0.1.1); **esa release no contiene el nuevo panel Tvheadend**. Este cambio no publica otra release automáticamente.
 
-Release: **https://github.com/TalaveraSama/IUX-ZONE/releases/tag/v0.1.1**
+## Las bases solicitadas
 
-Requisitos del instalador: Linux con systemd, Bash, herramientas habituales de administración y **Node.js >=22 ya instalado** en `/usr/bin`, `/usr/local/bin` o `/opt`. El paquete es portable entre arquitecturas compatibles con Node.js; **no incluye el runtime ni es un binario autónomo**.
+- **DSH Our Free Model:** se reutilizan sus tokens visuales MIT, conservando su licencia. Ese repositorio es un plugin de IA: no se incorporan sus proveedores ni sus ejecutables.
+- **Tvheadend:** motor DVB externo, integrado mediante API HTTP. Se conserva su identidad y licencia GPL; no se incluyen ni renombran sus binarios. Los drivers TBS siguen siendo responsabilidad del host y su compatibilidad depende del modelo.
 
-```sh
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/iux-zone-0.1.1-linux.tar.gz
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/SHA256SUMS
-sha256sum -c SHA256SUMS
-tar -xzf iux-zone-0.1.1-linux.tar.gz
-cd iux-zone-0.1.1
-bash scripts/install.sh --check
-# Primera instalación en una LAN confiable, con contraseña generada:
-sudo bash scripts/install.sh --lan
-```
+[Procedencia y licencias](third_party/README.md) · [Guía y alcance de Tvheadend](docs/TVHEADEND.md)
 
-Abre `http://IP-DEL-SERVIDOR:3000`. Consulta la contraseña con `sudo cat /etc/iux-zone/iux-zone.env`. **HTTP no cifra credenciales ni video: no publiques este modo en Internet.**
+## Panel disponible
 
-Para producción, usa `sudo bash scripts/install.sh` **sin `--lan`**: escucha en `127.0.0.1:3000`, exige proxy HTTPS y utiliza cookies Secure. Configura `PUBLIC_URL` para los enlaces de reproducción. Consulta [la guía de instalación, HTTPS, actualización y desinstalación](docs/INSTALACION.md).
+- **Vista general:** biblioteca local, grupos y distribución de fuentes configuradas.
+- **Cabecera DVB:** comprobación del motor y resumen de hardware, redes, multiplexes, servicios y canales.
+- **Adaptadores / TBS:** árbol de dispositivos, exploración de frontends y editor de propiedades publicadas por el motor.
+- **Redes y frecuencias:** creación/edición de redes y multiplexes, exploración y eliminación confirmada.
+- **Servicios y canales:** selección, mapeo en el motor e importación idempotente a iux-zone.
+- **EPG:** consulta paginada de eventos reales de Tvheadend.
+- **Actividad:** entradas, señal/SNR en las unidades originales del motor, suscripciones y conexiones.
+- **Conexión al motor:** probar, guardar o eliminar conexión, autenticación Basic/Digest y contraseña protegida del lado del servidor.
+- **Canales y M3U:** CRUD local, relays compartidos, token de reproducción separado del administrador y descarga/suscripción M3U.
 
-## Qué hace la retransmisión
+No se cargan dispositivos o estadísticas de demostración. Sin motor configurado se muestra una pantalla de conexión. Las pruebas usan fixtures explícitos, nunca introducidos en la aplicación de producción.
 
-| Entrada | Salida | Soporte |
-|---|---|---|
-| HTTP / HTTPS MPEG-TS directo | HTTP MPEG-TS | Sí, TLS verificado por Node.js |
-| UDP IPv4 con paquetes MPEG-TS de 188 bytes | HTTP MPEG-TS | Sí, unicast local y multicast |
-| RTP v2 / payload type 33 (MP2T) sobre UDP IPv4 | HTTP MPEG-TS | Sí, retira cabecera RTP |
-| HLS / DASH / RTMP / SRT | — | No |
-| Sintonizadores DVB, BISS, transcodificación | — | No |
-| Emisión UDP/RTP de salida | — | No: la salida implementada es HTTP-TS |
+## Ejecutar el código de esta rama
 
-- Se abre **una conexión de origen por canal**, bajo demanda del primer cliente.
-- Se distribuyen los bytes a varios clientes, sin transcodificar ni cambiar códecs.
-- El último cliente al desconectar libera el origen o el socket UDP.
-- Error de origen o 15 segundos sin MPEG-TS: se cierra la sesión; el reproductor debe reconectar. No hay reconexión automática interna.
-- Un lector lento se desconecta si su cola supera 2 MiB, sin bloquear a los demás.
-- Límites de esta versión: 32 canales simultáneos, 256 clientes totales, sin promesa de capacidad de bitrate. Mide CPU y red en tu hardware.
-- Estado, bytes recibidos, clientes y errores observados en `/api/relay` y en el panel. No son métricas DVB ni comprobaciones de canales sin demanda.
-- RTP no implementa jitter buffer, reordenamiento, RTCP, FEC ni recuperación de pérdidas. Los saltos de secuencia se cuentan como discontinuidades, no como una estimación exacta de paquetes perdidos.
-- UDP/RTP requiere puerto no privilegiado (1024–65535) y exclusivo por canal activo. Unicast: dirección de **escucha local** (por ejemplo `udp://0.0.0.0:5000`), no IP del emisor remoto. Multicast: `udp://239.1.1.1:5000`, con `MULTICAST_INTERFACE` si hace falta.
-
-El servidor debe tener acceso autorizado a los orígenes. Los reproductores solo necesitan acceso a iux-zone y compatibilidad con los códecs originales. No se ha probado una instalación de gran escala ni reproducción audiovisual en hardware real; las pruebas de transporte usan paquetes MPEG-TS sintéticos y sockets reales.
-
-## Uso
-
-1. Abre **Nuevo canal** e introduce una URL MPEG-TS autorizada, un grupo y, opcionalmente, tvg-id y logo.
-2. Actívalo para incluirlo en la lista.
-3. En **Lista M3U**, descarga el archivo o pulsa **Mostrar enlace de suscripción**.
-4. Abre ese archivo o enlace en VLC o tu reproductor IPTV. La conexión del reproductor inicia la retransmisión.
-5. Mira el estado real del relay en la tabla de canales. «Habilitado» no significa que esté transmitiendo: sin clientes permanece sin demanda.
-
-`STREAM_TOKEN` es un secreto de reproducción separado de `ADMIN_PASSWORD`: permite leer la lista y **todos los canales habilitados**, pero no administrar ni exportar las URLs originales. El instalador genera ambos. Rotar `STREAM_TOKEN` y reiniciar revoca los enlaces anteriores y desconecta las sesiones; no hay tokens individuales por cliente en esta versión.
-
-Con contraseña y sin `STREAM_TOKEN`, se requiere cookie de administración para reproducir: la suscripción externa no funcionará. Sin contraseña ni token, solo desarrollo: cualquiera que alcance el puerto puede administrar y reproducir.
-
-Los M3U exportados apuntan a `/stream/<id>.ts?token=…`, no al origen. La exportación de orígenes permanece disponible **solo para administradores** en `/playlist.m3u?direct=1`. Los logos e IDs son metadatos: no hay descarga de logos ni guía XMLTV.
-
-## Ejecutar sin instalar
+Requisito: **Node.js >=22**. No hay dependencias npm de ejecución.
 
 ```sh
 npm start
-# http://localhost:3000 — desarrollo sin autenticación, NO publicar.
+# http://localhost:3000
 ```
 
-O bien configura `.env`:
+Esto activa el modo de desarrollo. Si no defines ADMIN_PASSWORD, cualquiera con acceso al puerto puede administrar la instancia. **No lo publiques así en Internet.**
+
+Para usar configuración local:
 
 ```sh
 cp .env.example .env
-# Edita ADMIN_PASSWORD y STREAM_TOKEN con secretos diferentes.
+# Edita .env con ADMIN_PASSWORD y STREAM_TOKEN únicos y diferentes.
 node --env-file=.env server.js
 ```
 
-`npm start` no carga `.env` automáticamente. No se necesita `npm install` para ejecutar la app.
+En producción, define NODE_ENV=production, una contraseña de al menos 12 caracteres, un token de al menos 24, y publica mediante un proxy HTTPS. Las cookies Secure no mantienen sesión en HTTP directo. El servidor escucha en 0.0.0.0 por defecto para admitir la vista previa; el instalador seguro usa 127.0.0.1.
 
-| Variable | Predeterminado | Uso |
-|---|---|---|
-| `PORT` | `3000` | Panel, API, lista y retransmisiones HTTP |
-| `HOST` | `0.0.0.0` | Dirección de escucha; instalador seguro usa `127.0.0.1` |
-| `DATA_DIR` | `./data` junto al servidor | Directorio JSON persistente |
-| `ADMIN_PASSWORD` | vacío | Contraseña de administrador; producción exige ≥12 caracteres |
-| `STREAM_TOKEN` | vacío | Secreto de reproducción (≥24 caracteres si se configura) |
-| `PUBLIC_URL` | origen de la petición | Origen externo, ej. `https://tv.example.com`, sin rutas; obligatorio detrás de un proxy para exportar URLs correctas |
-| `MULTICAST_INTERFACE` | ruta de red predeterminada | IPv4 local de la interfaz multicast |
-| `NODE_ENV` | desarrollo | `production` usa cookies Secure y protección contra iframes |
+## Conectar Tvheadend
 
-## Seguridad y datos
+1. Prepara Tvheadend y el driver de tu TBS en un host Linux. El motor debe poder acceder a /dev/dvb.
+2. Abre **Conexión al motor** e introduce su origen, usuario y contraseña. Ejemplo en el mismo host: `http://127.0.0.1:9981`.
+3. El usuario necesita administración y streaming, incluido el perfil **pass**. Pulsa **Comprobar conexión** y después **Guardar**.
+4. Explora los adaptadores, crea una red compatible, asigna sus UUID al frontend y configura los multiplexes.
+5. Explora la red, mapea los servicios, e importa canales desde **Canales del motor**.
+6. Descarga la lista M3U de iux-zone. El servidor obtiene el MPEG-TS autenticado desde Tvheadend y lo distribuye sin exponer las credenciales del motor.
 
-- Solo un administrador de confianza debe configurar fuentes: **el relay puede conectar con servicios internos**, lo cual es necesario para cabeceras LAN. No hay aislamiento de destinos ni defensa SSRF frente a un administrador malicioso; restringe la salida de red del servicio según tu despliegue.
-- Sesión de administración de 8 horas, cookie HttpOnly / SameSite, límite de intentos de login y validación Origin. HTTPS es obligatorio para mantener sesión con `NODE_ENV=production`.
-- No se aceptan credenciales embebidas en URLs. Los tokens de consulta del origen quedan en el JSON y en formularios: protege archivos y copias.
-- Los tokens de reproducción van en la URL: evita registrarlos en logs de proxy, historiales o capturas. No compartas listas públicamente. Sin controles individuales ni límites por suscriptor.
-- Una instancia por directorio de datos. JSON con reemplazo atómico, sin bloqueo multiproceso ni base de datos multiusuario.
-- Sesiones y estado del relay en memoria. Reiniciar cierra las retransmisiones. Deshabilitar, borrar o cambiar el origen de un canal también cierra sus clientes.
-- Sin roles, auditoría, facturación, DRM, EPG, autodescubrimiento DVB ni soporte de claves BISS.
+El editor es guiado por los metadatos del motor; las relaciones/listas avanzadas se introducen como JSON de UUID. No es todavía un asistente completo para LNB, DiSEqC, USALS o CAM/CI. Esos ajustes pueden requerir la interfaz nativa de Tvheadend. [Detalles y límites](docs/TVHEADEND.md).
 
-## Docker
+## Entradas y salidas
 
-```sh
-docker build -t iux-zone:local .
-# ADMIN_PASSWORD y STREAM_TOKEN deben estar exportados en tu entorno.
-# Requiere proxy HTTPS; PUBLIC_URL debe apuntar a ese proxy.
-docker run -d --name iux-zone \
-  -p 127.0.0.1:3000:3000 \
-  -e ADMIN_PASSWORD -e STREAM_TOKEN -e PUBLIC_URL \
-  -v iux-zone-data:/app/data iux-zone:local
-```
+| Entrada | Salida |
+|---|---|
+| HTTP / HTTPS MPEG-TS directo | HTTP MPEG-TS |
+| UDP-TS IPv4 / RTP v2 MP2T | HTTP MPEG-TS |
+| `tvh://channel/<uuid>` importado del motor | HTTP MPEG-TS con autenticación upstream en el servidor |
 
-Usuario no privilegiado. Para recibir multicast, usa una red de host o una configuración de red multicast probada; el bridge de Docker no suele transportar la recepción multicast como esperas. En Linux con `--network host`, omite `-p` y establece `HOST=127.0.0.1` si hay proxy. Para UDP unicast publica explícitamente cada puerto `/udp`. No hay dispositivos DVB implementados.
+Un origen compartido por canal; desconectar el último cliente libera el origen. Se aplican timeout de inactividad de 15 segundos, cola máxima de 2 MiB por cliente, 32 sesiones de canal y 256 clientes totales. No son garantías de rendimiento: mide tu hardware y red.
 
-## Validación y empaquetado
+No hay transcodificación, conversión HLS, salida UDP/RTP, captura directa DVB desde Node, descifrado, DVR ni usuarios por abonado. El perfil pass debe entregar TS de 188 bytes. La EPG del panel no publica todavía un XMLTV propio.
+
+## Configuración y seguridad
+
+| Variable | Uso |
+|---|---|
+| HOST / PORT | Dirección y puerto HTTP; predeterminados 0.0.0.0:3000 |
+| DATA_DIR | Directorio persistente; predeterminado data junto al servidor |
+| ADMIN_PASSWORD | Contraseña del panel; obligatoria en producción |
+| STREAM_TOKEN | Secreto de reproducción compartido por todos los canales habilitados |
+| PUBLIC_URL | Origen externo para los enlaces M3U, especialmente detrás de un proxy |
+| MULTICAST_INTERFACE | IPv4 local para recepción multicast |
+| NODE_ENV | production activa cookies Secure y restricciones de iframe |
+
+La conexión a Tvheadend se guarda desde el panel en `DATA_DIR/tvheadend.json` (0600), no en variables del navegador. Las contraseñas no se devuelven por la API, pero **no se cifran en disco**. Restringe y respalda el directorio completo; contiene datos y secretos.
+
+Una instancia por directorio JSON. Las sesiones administrativas y del relay están en memoria y se cierran al reiniciar. El administrador de fuentes puede conectar con servicios de red internos: solo usuarios de confianza y salida de red restringida. HTTP, incluso con Digest, no cifra el video. No se siguen redirecciones con las credenciales de Tvheadend ni se desactiva la verificación TLS.
+
+## Pruebas y paquete local
 
 ```sh
 npm test
 npm run check
 npm run package
-# dist/iux-zone-0.1.1-linux.tar.gz y dist/SHA256SUMS
 ```
 
-Pruebas de CRUD, persistencia, autenticación, tokens, HTTP-TS compartido, recepción UDP/RTP real, errores, timeouts, límites y clientes lentos. Los paquetes de prueba comprueban transporte e integridad de bytes, no decodificación audiovisual.
+El empaquetado produce `dist/iux-zone-0.2.0-linux.tar.gz` y `dist/SHA256SUMS`. Requiere Node.js ya instalado; no es un binario autónomo. El instalador conserva configuración y canales en actualizaciones y mantiene las correcciones del enlace current de v0.1.1.
 
-## API
+**No se ha validado una TBS física ni un Tvheadend real en esta sesión.** Las pruebas nuevas reproducen la API con un servidor fixture, autenticación, sockets y MPEG-TS sintético; no certifican sintonización, códecs ni rendimiento de producción.
 
-Escrituras JSON. La API de administración solo admite sesión, nunca el token de reproducción.
+Para instrucciones de la versión publicada anteriormente: [instalación 0.1.1](docs/INSTALACION.md) y [documentación histórica](docs/VERSION-0.1.1.md). No confundas ese archivo de descarga con el paquete local 0.2.0.
 
-| Método | Ruta | Función |
-|---|---|---|
-| GET / POST / DELETE | `/api/session` | Estado / login / logout |
-| GET | `/api/system` | Versión y capacidades |
-| GET / POST | `/api/channels` | Listar / crear |
-| PATCH / DELETE | `/api/channels/:id` | Actualizar / eliminar |
-| GET | `/api/relay` | Sesiones de origen observadas y errores |
-| GET | `/api/playback` | Enlace secreto de suscripción para el administrador |
-| GET | `/playlist.m3u?token=…` | Lista de salidas retransmitidas |
-| GET | `/stream/:id.ts?token=…` | Video HTTP-TS bajo demanda |
-
-## Referencia
-
-Se revisó [novaheadend/nova-core-releases](https://github.com/novaheadend/nova-core-releases): solo distribuye binarios propietarios, no fuentes del producto. **iux-zone no es un fork ni contiene su código, marcas, capturas o ejecutables.** [Revisión y diferencias](docs/REVISION-NOVA.md).
-
-Usa únicamente señales que tengas autorización para recibir y distribuir.
+Usa únicamente contenido y señales que tengas autorización para recibir y distribuir.

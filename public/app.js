@@ -11,6 +11,13 @@ const views = {
   channels: ['Canales', 'Cada canal, bajo tu control', 'Agrega, organiza y administra tus fuentes de contenido.'],
   playlist: ['Lista M3U', 'Tu biblioteca, sin fronteras', 'Exporta tus canales para usarlos en tu reproductor.'],
   system: ['Sistema', 'Conoce tu iux-zone', 'Capacidades reales, sin métricas simuladas.'],
+  'tvh-dashboard': ['Cabecera DVB', 'El control empieza en la señal', 'Tu motor Tvheadend y tu distribución, en un mismo workspace.'],
+  'tvh-hardware': ['Adaptadores / TBS', 'El origen de tu señal', 'Hardware detectado por Tvheadend. No se simulan sintonizadores.'],
+  'tvh-networks': ['Redes y frecuencias', 'Encuentra tu próxima señal', 'Redes DVB, multiplexes y exploración de servicios.'],
+  'tvh-services': ['Servicios y canales', 'Del servicio al canal', 'Mapea servicios en Tvheadend e impórtalos a tu biblioteca.'],
+  'tvh-epg': ['Guía EPG', 'Lo que viene, en pantalla', 'Programación recibida por tu motor Tvheadend.'],
+  'tvh-activity': ['Actividad en vivo', 'La señal, en movimiento', 'Entradas, suscripciones y conexiones observadas en Tvheadend.'],
+  'tvh-settings': ['Conexión al motor', 'Conecta tu cabecera', 'Credenciales protegidas en el servidor, nunca en el reproductor.'],
 };
 
 function toast(message, error = false) {
@@ -21,6 +28,7 @@ function toast(message, error = false) {
   toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500);
 }
 function showLogin() {
+  document.dispatchEvent(new Event('iux:logout'));
   $('#subscription-url').value = ''; $('#subscription-label').hidden = true;
   $('#playlist-preview').textContent = '';
   $('#app').hidden = true;
@@ -51,6 +59,8 @@ function setView(next) {
   $('#channel-section').hidden = !['overview', 'channels'].includes(next);
   $('#playlist-view').hidden = next !== 'playlist';
   $('#system-view').hidden = next !== 'system';
+  $('#tvh-view').hidden = !next.startsWith('tvh-');
+  document.dispatchEvent(new CustomEvent('iux:view', { detail: next }));
   $('#add-channel').hidden = !['overview', 'channels'].includes(next);
   $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === next));
   localStorage.setItem('iux-view', next);
@@ -63,7 +73,7 @@ function el(tag, className, text) {
 }
 function render() {
   const enabled = channels.filter(c => c.enabled).length;
-  const http = channels.filter(c => new URL(c.source).protocol.startsWith('http')).length;
+  const http = channels.filter(c => ['http:', 'https:', 'tvh:'].includes(new URL(c.source).protocol)).length;
   $('#stat-total').textContent = channels.length;
   $('#stat-enabled').textContent = enabled;
   $('#stat-http').textContent = http;
@@ -269,6 +279,7 @@ $('#show-playlist-link').addEventListener('click', async () => {
     $('#subscription-url').select();
   } catch (err) { toast(err.message, true); }
 });
+window.iux = { api, el, toast, loadChannels, setView };
 setInterval(() => {
   if (!document.hidden && !$('#app').hidden) refreshRelay().catch(() => { $('#relay-updated').textContent = '· no se pudo actualizar'; });
 }, 5000);

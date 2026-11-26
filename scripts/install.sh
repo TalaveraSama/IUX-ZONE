@@ -43,7 +43,7 @@ esac
 node_major=$("$node_bin" -p 'process.versions.node.split(".")[0]')
 (( node_major >= 22 )) || fail 'Se requiere Node.js >=22. Instálalo antes de continuar.'
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
-for file in scripts/install-lib.sh server.js relay.js README.md package.json package-lock.json public/index.html public/app.js public/styles.css public/favicon.svg deploy/iux-zone.service; do
+for file in scripts/install-lib.sh server.js relay.js tvheadend.js third_party/DSH-LICENSE.txt README.md package.json package-lock.json public/index.html public/app.js public/tvheadend-ui.js public/tvheadend.css public/ofm-tokens.css public/styles.css public/favicon.svg deploy/iux-zone.service; do
   [[ -f "$source_dir/$file" ]] || fail "Paquete incompleto: falta $file"
 done
 source "$source_dir/scripts/install-lib.sh"
@@ -51,6 +51,8 @@ version=$("$node_bin" -p 'JSON.parse(require("node:fs").readFileSync(process.arg
 [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Versión de paquete inválida.'
 "$node_bin" --check "$source_dir/server.js"
 "$node_bin" --check "$source_dir/relay.js"
+"$node_bin" --check "$source_dir/tvheadend.js"
+"$node_bin" --check "$source_dir/public/tvheadend-ui.js"
 "$node_bin" --check "$source_dir/public/app.js"
 if (( check )); then
   echo "Paquete iux-zone $version válido; Node.js $node_major en $node_bin."
@@ -81,8 +83,9 @@ install -d -o iux-zone -g iux-zone -m 0700 /var/lib/iux-zone
 stage=$(mktemp -d "$base/releases/.staging.XXXXXX")
 cleanup() { if [[ -n ${stage:-} && -d $stage ]]; then rm -rf -- "$stage"; fi; }
 trap cleanup EXIT
-install -m 0644 "$source_dir/server.js" "$source_dir/relay.js" "$source_dir/package.json" "$source_dir/package-lock.json" "$source_dir/README.md" "$stage/"
+install -m 0644 "$source_dir/server.js" "$source_dir/relay.js" "$source_dir/tvheadend.js" "$source_dir/package.json" "$source_dir/package-lock.json" "$source_dir/README.md" "$stage/"
 cp -R "$source_dir/public" "$stage/public"
+cp -R "$source_dir/third_party" "$stage/third_party"
 if [[ -d "$source_dir/docs" ]]; then cp -R "$source_dir/docs" "$stage/docs"; fi
 if [[ -f "$source_dir/BUILD.json" ]]; then install -m 0644 "$source_dir/BUILD.json" "$stage/"; fi
 find "$stage" -type d -exec chmod 0755 {} +

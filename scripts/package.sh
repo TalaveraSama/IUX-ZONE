@@ -11,7 +11,7 @@ stage=$(mktemp -d)
 trap 'rm -rf -- "$stage"' EXIT
 name="iux-zone-$version"
 mkdir "$stage/$name"
-cp -R server.js relay.js package.json package-lock.json README.md Dockerfile .dockerignore .env.example public docs scripts deploy test "$stage/$name/"
+cp -R server.js relay.js tvheadend.js third_party package.json package-lock.json README.md Dockerfile .dockerignore .env.example public docs scripts deploy test "$stage/$name/"
 commit=$(git rev-parse HEAD)
 node --input-type=module - "$version" "$commit" "$stage/$name/BUILD.json" <<'NODE'
 import { writeFileSync } from 'node:fs';
