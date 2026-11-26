@@ -1,0 +1,62 @@
+name: Publish Linux release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+    # Bootstrap the first software release from the active development branch.
+    # Later releases can use tags or workflow_dispatch; no merge to main is needed.
+    branches:
+      - 'arena/eb67d4ec-iux-zone'
+    paths:
+      - '.github/workflows/release.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: iux-zone-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify, test and package
+        run: npm run package
+      - name: Verify packaged files
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum -c SHA256SUMS)
+          mkdir -p /tmp/iux-package-check
+          tar -xzf dist/iux-zone-*-linux.tar.gz -C /tmp/iux-package-check
+          version=$(node -p 'require("./package.json").version')
+          bash "/tmp/iux-package-check/iux-zone-$version/scripts/install.sh" --check
+          npm --prefix "/tmp/iux-package-check/iux-zone-$version" test
+      - name: Publish release and assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("./package.json").version')
+          tag="v$version"
+          if [[ "$GITHUB_REF" == refs/tags/* && "$GITHUB_REF_NAME" != "$tag" ]]; then
+            echo 'Tag does not match package.json' >&2
+            exit 1
+          fi
+          gh release create "$tag" \
+            "dist/iux-zone-$version-linux.tar.gz" dist/SHA256SUMS \
+            --target "$GITHUB_SHA" \
+            --title "iux-zone $tag — Linux + retransmisión MPEG-TS" \
+            --notes-file "docs/RELEASE-$tag.md" \
+            --latest
