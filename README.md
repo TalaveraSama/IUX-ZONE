@@ -6,7 +6,7 @@ Consola IPTV independiente con **retransmisión MPEG-TS real**, administración 
 
 Release: **https://github.com/TalaveraSama/IUX-ZONE/releases/tag/v0.1.0**
 
-Requisitos del instalador: Linux con systemd, Bash, herramientas habituales de administración y **Node.js >=22 ya instalado** en `/usr/bin`, `/usr/local/bin` o `/opt/node`. El paquete es portable entre arquitecturas compatibles con Node.js; **no incluye el runtime ni es un binario autónomo**.
+Requisitos del instalador: Linux con systemd, Bash, herramientas habituales de administración y **Node.js >=22 ya instalado** en `/usr/bin`, `/usr/local/bin` o `/opt`. El paquete es portable entre arquitecturas compatibles con Node.js; **no incluye el runtime ni es un binario autónomo**.
 
 ```sh
 curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.0/iux-zone-0.1.0-linux.tar.gz

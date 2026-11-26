@@ -37,8 +37,8 @@ for cmd in node systemctl install cp mv ln readlink getent useradd chown find ch
 done
 node_bin=$(readlink -f "$(command -v node)")
 case "$node_bin" in
-  /usr/bin/*|/usr/local/bin/*|/opt/node/*) ;;
-  *) fail 'Instala Node.js en /usr/bin, /usr/local/bin o /opt/node; no se admite un runtime dentro de /home o /root.' ;;
+  /usr/bin/*|/usr/local/bin/*|/opt/*) ;;
+  *) fail 'Instala Node.js en /usr/bin, /usr/local/bin o /opt; no se admite un runtime dentro de /home o /root.' ;;
 esac
 node_major=$("$node_bin" -p 'process.versions.node.split(".")[0]')
 (( node_major >= 22 )) || fail 'Se requiere Node.js >=22. Instálalo antes de continuar.'
