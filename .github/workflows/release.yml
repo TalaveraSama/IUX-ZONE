@@ -41,6 +41,34 @@ jobs:
           version=$(node -p 'require("./package.json").version')
           bash "/tmp/iux-package-check/iux-zone-$version/scripts/install.sh" --check
           npm --prefix "/tmp/iux-package-check/iux-zone-$version" test
+      - name: Test systemd installation and recovery from a cyclic current link
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("./package.json").version')
+          sudo install -d -m 0755 /opt/iux-zone/releases
+          sudo ln -s /opt/iux-zone/current /opt/iux-zone/current
+          # Seed an existing configuration as on an interrupted 0.1.0 install.
+          # Secrets are generated inside the root process and never printed.
+          sudo "$(command -v node)" --input-type=module - <<'NODE'
+          import { mkdirSync, writeFileSync } from 'node:fs';
+          import { randomBytes } from 'node:crypto';
+          mkdirSync('/etc/iux-zone', { recursive: true, mode: 0o700 });
+          const config = 'NODE_ENV=development\nHOST=127.0.0.1\nPORT=3000\nDATA_DIR=/var/lib/iux-zone\n' +
+            `ADMIN_PASSWORD=${randomBytes(24).toString('hex')}\nSTREAM_TOKEN=${randomBytes(24).toString('hex')}\n`;
+          writeFileSync('/etc/iux-zone/iux-zone.env', config, { mode: 0o600 });
+          NODE
+          sudo cp /etc/iux-zone/iux-zone.env /tmp/iux-zone-env-before
+          sudo bash "/tmp/iux-package-check/iux-zone-$version/scripts/install.sh"
+          sudo cmp /etc/iux-zone/iux-zone.env /tmp/iux-zone-env-before
+          sudo systemctl is-active --quiet iux-zone
+          test "$(readlink -e /opt/iux-zone/current)" = "/opt/iux-zone/releases/$version"
+          curl -fsS http://127.0.0.1:3000/api/session
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/api/system)" = 401
+          sudo systemctl stop iux-zone
+      - name: Service diagnostics on failure
+        if: failure()
+        run: sudo journalctl -u iux-zone -n 60 --no-pager || true
       - name: Publish release and assets
         env:
           GH_TOKEN: ${{ github.token }}

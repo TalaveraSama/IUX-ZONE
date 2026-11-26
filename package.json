@@ -1,6 +1,6 @@
 {
   "name": "iux-zone",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Independent IPTV channel management console",
   "type": "module",
@@ -11,7 +11,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node --test",
-    "check": "node --check server.js && node --check relay.js && node --check public/app.js && bash -n scripts/install.sh && bash -n scripts/package.sh",
+    "check": "node --check server.js && node --check relay.js && node --check public/app.js && bash -n scripts/install.sh && bash -n scripts/install-lib.sh && bash -n scripts/package.sh",
     "package": "bash scripts/package.sh"
   }
 }

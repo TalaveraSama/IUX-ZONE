@@ -32,7 +32,7 @@ for arg in "$@"; do
 done
 fail() { echo "ERROR: $*" >&2; exit 1; }
 [[ $(uname -s) == Linux ]] || fail 'El instalador requiere Linux.'
-for cmd in node systemctl install cp mv ln readlink getent useradd chown find chmod sed mktemp sleep id; do
+for cmd in node systemctl install cp mv ln readlink getent useradd chown find chmod sed mktemp sleep id rm; do
   command -v "$cmd" >/dev/null || fail "Falta el requisito: $cmd"
 done
 node_bin=$(readlink -f "$(command -v node)")
@@ -43,9 +43,10 @@ esac
 node_major=$("$node_bin" -p 'process.versions.node.split(".")[0]')
 (( node_major >= 22 )) || fail 'Se requiere Node.js >=22. Instálalo antes de continuar.'
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
-for file in server.js relay.js README.md package.json package-lock.json public/index.html public/app.js public/styles.css public/favicon.svg deploy/iux-zone.service; do
+for file in scripts/install-lib.sh server.js relay.js README.md package.json package-lock.json public/index.html public/app.js public/styles.css public/favicon.svg deploy/iux-zone.service; do
   [[ -f "$source_dir/$file" ]] || fail "Paquete incompleto: falta $file"
 done
+source "$source_dir/scripts/install-lib.sh"
 version=$("$node_bin" -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).version' "$source_dir/package.json")
 [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Versión de paquete inválida.'
 "$node_bin" --check "$source_dir/server.js"
@@ -103,15 +104,13 @@ chown root:root "$config"
 # Node's absolute path is checked above, and substituted without shell evaluation.
 sed "s|@NODE@|$node_bin|g" "$source_dir/deploy/iux-zone.service" > /etc/systemd/system/iux-zone.service
 chmod 0644 /etc/systemd/system/iux-zone.service
-previous=$(readlink -f "$base/current" 2>/dev/null || true)
-ln -s "$release" "$base/.current.new"
-mv -Tf "$base/.current.new" "$base/current"
+previous=$(previous_release "$base")
+switch_release "$base" "$release"
 systemctl daemon-reload
 systemctl enable iux-zone.service
 if ! systemctl restart iux-zone.service; then
   if [[ -n "$previous" && -d "$previous" ]]; then
-    ln -s "$previous" "$base/.current.rollback"
-    mv -Tf "$base/.current.rollback" "$base/current"
+    switch_release "$base" "$previous"
     systemctl restart iux-zone.service || true
   fi
   fail 'No se pudo arrancar. Revisa journalctl -u iux-zone.service; la versión anterior se restauró si existía.'
@@ -119,8 +118,7 @@ fi
 sleep 2
 if ! systemctl is-active --quiet iux-zone.service; then
   if [[ -n "$previous" && -d "$previous" ]]; then
-    ln -s "$previous" "$base/.current.rollback"
-    mv -Tf "$base/.current.rollback" "$base/current"
+    switch_release "$base" "$previous"
     systemctl restart iux-zone.service || true
   fi
   fail 'El servicio se detuvo. Revisa journalctl -u iux-zone.service y /etc/iux-zone/iux-zone.env.'

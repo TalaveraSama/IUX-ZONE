@@ -1,19 +1,19 @@
-# iux-zone 0.1.0
+# iux-zone 0.1.1
 
 Consola IPTV independiente con **retransmisión MPEG-TS real**, administración de canales y listas M3U. Interfaz en español, Node.js 22+, sin dependencias npm de ejecución.
 
 ## Descargar e instalar
 
-Release: **https://github.com/TalaveraSama/IUX-ZONE/releases/tag/v0.1.0**
+Release: **https://github.com/TalaveraSama/IUX-ZONE/releases/tag/v0.1.1**
 
 Requisitos del instalador: Linux con systemd, Bash, herramientas habituales de administración y **Node.js >=22 ya instalado** en `/usr/bin`, `/usr/local/bin` o `/opt`. El paquete es portable entre arquitecturas compatibles con Node.js; **no incluye el runtime ni es un binario autónomo**.
 
 ```sh
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.0/iux-zone-0.1.0-linux.tar.gz
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.0/SHA256SUMS
+curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/iux-zone-0.1.1-linux.tar.gz
+curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/SHA256SUMS
 sha256sum -c SHA256SUMS
-tar -xzf iux-zone-0.1.0-linux.tar.gz
-cd iux-zone-0.1.0
+tar -xzf iux-zone-0.1.1-linux.tar.gz
+cd iux-zone-0.1.1
 bash scripts/install.sh --check
 # Primera instalación en una LAN confiable, con contraseña generada:
 sudo bash scripts/install.sh --lan
@@ -118,7 +118,7 @@ Usuario no privilegiado. Para recibir multicast, usa una red de host o una confi
 npm test
 npm run check
 npm run package
-# dist/iux-zone-0.1.0-linux.tar.gz y dist/SHA256SUMS
+# dist/iux-zone-0.1.1-linux.tar.gz y dist/SHA256SUMS
 ```
 
 Pruebas de CRUD, persistencia, autenticación, tokens, HTTP-TS compartido, recepción UDP/RTP real, errores, timeouts, límites y clientes lentos. Los paquetes de prueba comprueban transporte e integridad de bytes, no decodificación audiovisual.

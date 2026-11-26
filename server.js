@@ -1,11 +1,12 @@
 import http from 'node:http';
 import { RelayManager, validateSource } from './relay.js';
-import { readFileSync, writeFileSync, mkdirSync, renameSync, existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, renameSync, existsSync, realpathSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID, randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 
 const root = dirname(fileURLToPath(import.meta.url));
+const version = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const protocols = new Set(['http:', 'https:', 'udp:', 'rtp:']);
 const clean = (value, max = 150) => typeof value === 'string' ? value.trim().replace(/[\r\n\x00-\x1f\x7f]/g, '').slice(0, max) : '';
 const hash = value => createHash('sha256').update(value).digest();
@@ -137,7 +138,7 @@ export function createApp({ dataDir = process.env.DATA_DIR || join(root, 'data')
       }
       if ((path.startsWith('/api/') || (path === '/playlist.m3u' && !tokenAccess)) && !authenticated) return reply(401, { error: 'Inicia sesión para continuar.' });
       if (path === '/api/system' && req.method === 'GET') return reply(200, {
-        name: 'iux-zone', version: '0.1.0', startedAt, authRequired: Boolean(password),
+        name: 'iux-zone', version, startedAt, authRequired: Boolean(password),
         capabilities: { channelManagement: true, m3uExport: true, relay: true, dvb: false, epg: false },
       });
       if (path === '/api/relay' && req.method === 'GET') return reply(200, relay.snapshot());
@@ -198,12 +199,12 @@ export function createApp({ dataDir = process.env.DATA_DIR || join(root, 'data')
   return server;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const server = createApp();
   const port = Number(process.env.PORT || 3000);
   const host = process.env.HOST || '0.0.0.0';
   server.listen(port, host, () => {
-    console.log(`iux-zone disponible en ${host}:${port}`);
+    console.log(`iux-zone disponible en ${host}:${server.address().port}`);
     if (!process.env.ADMIN_PASSWORD) console.warn('MODO DESARROLLO: sin contraseña. No publicar en Internet. Configura ADMIN_PASSWORD.');
   });
   for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => { server.shutdownRelay(); server.close(() => process.exit(0)); });

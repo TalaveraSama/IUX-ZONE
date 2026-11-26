@@ -1,4 +1,4 @@
-# Instalación de la release iux-zone 0.1.0
+# Instalación de la release iux-zone 0.1.1
 
 ## Requisitos
 
@@ -11,11 +11,11 @@
 ## Descargar y verificar
 
 ```sh
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.0/iux-zone-0.1.0-linux.tar.gz
-curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.0/SHA256SUMS
+curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/iux-zone-0.1.1-linux.tar.gz
+curl -fLO https://github.com/TalaveraSama/IUX-ZONE/releases/download/v0.1.1/SHA256SUMS
 sha256sum -c SHA256SUMS
-tar -xzf iux-zone-0.1.0-linux.tar.gz
-cd iux-zone-0.1.0
+tar -xzf iux-zone-0.1.1-linux.tar.gz
+cd iux-zone-0.1.1
 bash scripts/install.sh --check
 ```
 
@@ -103,7 +103,7 @@ El token de reproducción da acceso a todos los canales habilitados. No autentic
 ## Archivos, operación y actualización
 
 ```text
-/opt/iux-zone/releases/0.1.0   Código, propiedad de root
+/opt/iux-zone/releases/0.1.1   Código, propiedad de root
 /opt/iux-zone/current         Enlace a la versión activa
 /etc/iux-zone/iux-zone.env    Secretos, root:root 0600
 /var/lib/iux-zone             JSON de canales, usuario iux-zone
@@ -150,3 +150,12 @@ Esto conserva `/var/lib/iux-zone`, `/etc/iux-zone` y el usuario de servicio. Eli
 Pruebas automatizadas con sockets HTTP y UDP reales y paquetes MPEG-TS sintéticos. No constituyen una prueba de reproducción de un programa audiovisual, un sintonizador DVB, redes multicast reales ni una cabecera de alta carga. El instalador requiere verificación en un host systemd real; el modo `--check` no instala ni comprueba conectividad de fuentes.
 
 Sin transcodificación, HLS/DASH, salida UDP, EPG ni descifrado. Consulta el README para el alcance completo y usa solo contenido autorizado.
+
+
+## Reparar una instalación 0.1.0 con error 200/CHDIR
+
+La versión 0.1.0 podía salir sin iniciar el servidor al ejecutarse a través del enlace `current`. Su rollback podía convertir un destino inexistente en un enlace a sí mismo, produciendo «Too many levels of symbolic links».
+
+Descarga y verifica el paquete **0.1.1** siguiendo los comandos anteriores. Ejecuta `sudo bash scripts/install.sh` **sin `--lan`**, aunque la instalación original fuera LAN: la actualización conserva el archivo de entorno, su modo de acceso y todos los datos. No borres `/var/lib/iux-zone` ni `/etc/iux-zone`.
+
+El instalador 0.1.1 sustituye el enlace dañado y no lo conserva como rollback. Si ya instalaste 0.1.1, no lo reinstales: consulta los logs para diagnosticar cualquier otro problema.
